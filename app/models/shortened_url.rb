@@ -18,6 +18,15 @@ class ShortenedUrl < ActiveRecord::Base
     primary_key: :id,
     foreign_key: :user_id
 
+  has_many :visits,
+    class_name: :Visit,
+    primary_key: :id,
+    foreign_key: :shortened_url_id
+
+  has_many :visitors, proc { distinct },
+    through: :visits,
+    source: :user
+
   def self.random_code
     # make a random short_url
     short_url = nil
@@ -36,4 +45,23 @@ class ShortenedUrl < ActiveRecord::Base
       user_id: user.id
     )
   end
+
+  def num_clicks
+    self.visits.count
+  end
+
+  def num_uniques
+    # unique_visitors = Set.new
+    # self.visits.each do |visit|
+    #   unique_visitors << visit.user
+    # end
+    # unique_visitors.size
+    # self.visits.select(:user_id).distinct.count
+    self.visitors.count
+  end
+
+  def num_recent_uniques
+    self.visits.select(:user_id).distinct.where(created_at: 10.minutes.ago..Time.now).count
+  end
+
 end

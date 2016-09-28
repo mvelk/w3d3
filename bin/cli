@@ -1,0 +1,27 @@
+require 'launchy'
+
+puts 'Input your email:'
+email = gets.chomp
+
+user = User.find_by(email: email)
+raise 'User not found!' unless user
+
+puts <<-PROMPT
+  What do you want to do?
+  0. Create shortened URL
+  1. Visit shortened URL
+PROMPT
+option = gets.chomp
+
+case option
+when '0'
+  puts 'Type in your long url'
+  long_url = gets.chomp
+  puts ShortenedUrl.create_for_user_and_long_url!(user, long_url).short_url
+when '1'
+  puts 'Type in your shortened url'
+  input = gets.chomp
+  short_url_obj = ShortenedUrl.find_by(short_url: input)
+  long_url = short_url_obj.long_url
+  Launchy.open(long_url)
+end
