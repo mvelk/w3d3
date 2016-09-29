@@ -56,6 +56,16 @@ class ShortenedUrl < ActiveRecord::Base
     )
   end
 
+  def self.purge_old_urls
+    # we want to select all URLS who do not have a visit within the last 10 minutes
+    # then kill them dead!
+    urls = ShortenedUrl.all
+    urls.each do |url|
+      url.destroy if url.num_recent_uniques == 0
+    end
+
+  end
+
   def num_clicks
     self.visits.count
   end
@@ -77,6 +87,7 @@ class ShortenedUrl < ActiveRecord::Base
   def user_recent_submissions
     self.submitter.submitted_urls.where(created_at: 1.minutes.ago..Time.now).count
   end
+
 
   private
 

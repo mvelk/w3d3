@@ -23,5 +23,6 @@ when '1'
   input = gets.chomp
   short_url_obj = ShortenedUrl.find_by(short_url: input)
   long_url = short_url_obj.long_url
+  Visit.record_visit!(user, short_url_obj)
   Launchy.open(long_url)
 end
